@@ -1,0 +1,20 @@
+# laravel
+<VirtualHost *:80>
+	# 设置网站目录
+	DocumentRoot "F:/www/class/web69/weblaravel/public"
+	# 设置网站域名
+	ServerName www.l.com
+	# 错误日志（必须手动创建logs文件夹）
+	ErrorLog "F:/www/class/web69/weblaravel/logs/error.log"
+	# 成功日志（必须手动创建logs文件夹）
+	CustomLog "F:/www/class/web69/weblaravel/logs/access.log" combined
+	# 设置目录访问权限
+	<Directory "F:/www/class/web69/weblaravel/public">
+	    # 指定目录启用特性
+	    Options Indexes FollowSymLinks 
+	    # 是否允许使用.htaccess文件
+	    AllowOverride All
+	    # 访问目录权限
+	    Require all granted
+	</Directory>
+</VirtualHost>

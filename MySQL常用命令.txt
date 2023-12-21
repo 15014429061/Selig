@@ -1,0 +1,309 @@
+1.set names 客户端字符集;
+
+  查看数据库：show databases;
+  创建数据库：create database 数据库名;
+  查看数据库的创建语句：show create database 数据库名;
+  删除数据库：drop database 数据库名;
+
+2.选择数据库：use 数据库名;
+  查看数据表：show tables;
+  模糊查询  where 字段名 like '关键字%'；表示对关键字后面的部分进行模糊查询
+		where 字段名 like '关键字_';表示关键字后面只能增加一个模糊查询的字符
+  创建数据表：create table 表名;
+  显示表结构：desc 表名;
+  查看表的创建结构：show create table 表名;
+  删除表：drop table 表名;
+
+3.增加数据：insert into 表名【(字段列表)】 values(值列表);
+          insert into stus[name,age,sex,...] values('zhangsna',20,'男',...)
+  多数据插入:只要写一次insert指令，但是可以直接插入多条记录
+  基本语法：insert into 表名 [(字段列表)] values(值列表), (值列表)…;
+  查看数据：select 字段列表|* from 表名 [where子句](条件筛选)
+          select age from stus where age = 20;
+  修改数据：update 表名 set 字段名 = 值，字段名 = 值，...[where子句]
+          update stua set name = 'wangwu' where age = 18;
+  删除数据：delete from 表名 where 子句;
+
+4.1 列属性
+	create table  表名( 字段名 列类型 【列属性】)
+	列类型约束一个字段的取值范围。
+	列属性用于约束一个字段的取值在整列上取值限制
+  null：当插入数据时，如果没有有指定字段提供数据，那么MySQL会使用系统的默认值Null来填充
+	null值很特殊，一般我们不允许字段的值为Null
+  not null：对于not null字段，要么我们提供实际的值，要么设置一个自定义的默认值。
+  default：用于设置自定义的默认值。当没有为字段提供数据时，我们可以使用自定义的默认值来替换null值。
+	   不允许为null的字段一般要设置默认值
+  unique：唯一约束，用于约束整列中的字段的值都不允许重复。
+  	  特点：
+	  不允许重复，但允许为Null,原因是null不等于null
+  primary key：主要的字段，此种主要并不是对用户的主要而是对MySQL的主要，主要用于加快mySQL的查询。
+		主键字段一般是与用户数据无关。
+  auto_increment：主键值不需要用户提供，由MySQL自己生成，又不能重复，所以自增长。
+		  自增长，主要用于解决主键字段值 的问题。
+  模拟主键：如果一个表中没有设置主键，那么MySQL会将第1个具有not null及unique约束的字段设定为主键字段
+  复合主键：mysql允许将多个字段共同作为一个主键字段
+	语法:primary key (字段名，字段名)  （在设置字段名完成后，另起一行，使用这条语法）
+  备注: comment‘备注’(列属性)		
+
+
+			add（增加字段） 字段名 列类型  【列属性】 first|after 字段名
+			trop（删除字段）字段名
+			modify（修改字段类型、属性） 字段名 列类型 列属性  first|after 字段名
+4. alter table 表名
+			（修改属性时,不写的列属性等同于删除列属性，写的列属性等同于增加列属性
+			唯一键和主键除外，它们需要特殊的增加和删除语句；）
+
+		 	change（修改字段名）原字段名  新字段名 列类型 列属性  first|after 字段名
+			rename（修改表名）to 新表名
+
+ 删除唯一键：alter table 表名 drop index  唯一键约束名;
+ 增加唯一键：alter table 表名 add unique(字段名);
+ 删除主键：alter table 表名 drop primary key;
+ 增加主键：alter table 表名 add primary key(字段名);
+
+
+5.复制表结构： create table 新表名 like 旧表名
+  备份SQL执行结果：create table 表名 select 字段列表|* from 表名[ where子句];
+  限制更新: update 表名  set 字段名=值 where子句  limit rows；
+  限制删除：delete from 表名 where子句 limit rows;
+  批量插入：insert into 表名 select 字段列表|* from 表名[where子句];
+  蠕虫复制（查询表和插入表是同一张表）：insert into 表名[(字段名)] select (对应字段名) from 表名；
+ 
+主键冲突：1.insert  into 表名[字段列表] values（值，值。。。）  on duplicte key update  字段名= 值   。。。；
+          2.replace into 表名  values （值）;
+
+ 清除数据：
+1.delete from 表名;
+	delete在清空表时不会重置索引。主键的值不会从新从1开始。
+2.truncate 表名;
+	此种方式会重建索引
+
+
+  别名：字段名 as ‘字符串’（as可以省略）
+
+6.数据查询五子句：（顺序不可变）
+  语法：select 字段列表|* from 表名 [五子句];
+6.1 where子句：在将数据从硬盘读取到内存时，根据表达式进行第1次筛选。
+6.2 group by子句：语法；group by  字段名1，字段名2，.......
+   用于对where得到的结果进行分组统计
+   （统计函数）聚合函数：
+   count(*|字段名)	统计每一组的记录数
+   max(字段名)		用于统计每一组中的最大值
+   min(字段名)		用于统计每一组中的最小值
+   sum(字段名)		求每一组中的指定字段的和
+   avg(字段名)		求每一分组指定字段的平均值
+   语法： select 字段名1，....函数   from   表名  group by  字段名，.......
+   多字段分组时，统计函数用在最小组中；先统计字段1，再统计字段2，以此类推
+   回溯统计
+   在多字段分组时，默认统计函数是应用在最小组的。有时我们还需要对包含最小组的大组，再进行同样统计。那   么这就是回溯统计(with rollup);直接在语句末尾添加with rollup；
+6.3 having子句：
+   是针对where得到的结果进行group by分组统计之后的结果再去第2次筛选，和where子句的筛选形式基本一致。   where表达式中绝对不可以出现统计函数。
+6.4 order by子句：语法：order by 字段名 【asc|desc】【,字段名 【asc|desc】】
+   说明：
+	asc	(默认)升序排序
+ 	desc	降序排序
+   是对前在的where、group by、having子句得到的结果进行一个显示顺序上的控制
+   多字段排序：在前一个字段排序完成的基础上，再进行第二个字段排序;
+   重点：
+	select语句得到的结果也是一个表，此表只是位于内存中，也可以放在from后作为数据源，如果放在from   后作为数据源，那么必须加括号括起来，并且起个别名。
+   Select * |max(字段名) from (select * from 表名 drder by 字段名 desc|asc)  as 别名 group by 字段名;
+
+6.5limit子句：limit 【offset,】 rows
+  说明：
+	用于对where、group by、having、order by子句得到的结果进行显示行数的限制。
+	offset		偏移量(下标)，记录标的下标，下标从0开始，如果省略默认为0
+	rows		行数
+	从offset所指定的偏移量开始显示rows行记录。
+   数据分页原理：
+   与分页相关的因素：
+   每一页的记录数：		rowsPerPage		人为规定
+   当前的页码数：			curPage			用户点击的是第几页就是几
+   limit = (curPage-1)*rowsPerpage,rowsPerpage
+    
+   联合起来查询：
+   (lect * from goodA [order by desc limit 9999999])
+    union  （all|distinct：去重，去掉完全重复的数据（默认的））
+   (select * from goodB [oeder by desc limit 9999999]);
+   注意细节：union理论上只要保证字段数一样，不需要每次拿到的数据对应的字段类型一致。永远只保留第一个select语句对应的字段名字。
+
+7.外键
+  外键是一种约束，如果表B中某一个字段的值必须是表A主键字段值中的1个。表B这个被表A主键字段的值约束着的   这个字段就是外键。
+7.1创建外键
+   语法：
+	foreign key 外键字段名 references 主表(主键字段)；（外键字段的类型必须与主表主键字段的类型一致）
+   外键的本质就是使用其他表的字段的值来约束本表中某个字段的取值。
+   ①、从表被主表约束
+	创建时必须先创建主表再创建从表。
+	插入数据时，外键字段的值，必须是主表主键字段值中的一个。
+   ②、主表被从表约束
+	主表本身不能被随意删除(想删除主表必须先删除从表)
+	主表中的记录也不能随意删除
+        主表的主键字段的值也不能被随意修改
+    ③、级联约束 & 置空约束
+   级联约束：on update cascade
+	当主表的主键字段的值被修改后，从表中被约束的值一同被修改。
+ 
+   置空约束：on delete set null
+	当主表的记录被删除后，从表中被约束的值被设置为null。
+7.2删除外键
+   语法：
+	alter table 表名 drop foreign key 约束名
+   备注：
+	约束名通过show create table表名  查看
+7.3、添加外键
+     语法：
+	alter table 表名 add foreign key(外键字段) references 主表(主键字段名) on update cascade on delete set null
+
+8.子查询
+    定义：如果一个select语句中包含另一个select语句，那么被包含的select语句就是子查询。
+8.1 where子查询：标量子查询：一行一列
+	         列子查询：一列多行
+	         行子查询：一行多列 
+    from子查询：表子查询 --多行多列只能放在from后作为数据源。
+     子查询的书写规则：先写最终想得到的那个select语句。
+     where根据表达式进行筛选。表达式里就字段与值的匹配，首先理解等值匹配。从字段的个数与值的个数来总结：
+	字段		值		运算符
+	1个字段		1个值		=
+	1个字段		n个值		in
+	n个字段		n个值		(字段列表)=(值列表)
+    注意：
+	所有子查询必须使用括号括起来，只有表子查询必须使用别名。
+
+     exists子查询：主要用于判断。
+
+
+8.2 all、any、some
+     这些都是一个字段与多个值的非等值匹配
+     all		全部，所有
+     any		某中一个		some是any的同义词，用法相同
+     >all		表示大于最大值
+     <all		表示小于最小值
+     <>all	not in(值列表)
+     >any	大于最小的
+     <any	小于最大的
+9.连接查询
+9.1、内连接
+  ①、隐式内连接
+	select * from 表A,表B where 连接条件
+  ②、显示内连接
+        select * from 表A 【inner】 join表B where 连接条件
+
+9.2、外连接
+  ①、左外连接
+	select 字段列表 from 表L left join 表R on 连接条件
+  ②、右外连接
+	select 字段列表 from 表L right join 表R on 连接条件
+9.3①、自然内连接
+       语法：
+	select 字段列表 from 表A natural join 表B
+   ②、自然左外连接
+	语法：
+	select 字段列表 from 表L natural left join 表R ;
+   ③、自然右外连接
+	语法：
+	select 字段列表 from 表L natural right join 表R ;
+   ④、交差连接
+	语法：
+	select * from 表A cross join表B where 连接条件
+
+   ⑤、using关键字
+	主要应用在外连接，当连接字段同名时，using(作为连接的同名字段)
+	select * from 表A left join 表B using(同名字段)
+
+
+10.数据备份
+10.1sql备份与还原
+   ①、sql备份
+	所谓的sql备份就是备份能够表示表中数据的insert语句。
+   ②、工具
+   mysqldump.exe
+  运行环境为cmd窗口
+   语法：
+         mysqldump –u用户 –p 数据库 【数据表】 >备份的文件名(包含路径)
+  ③、还原
+   语法：
+	mysql –u用户名 –p   数据库名 数据表 <备份文件名
+
+10.2、数据备份
+  ①、备份
+  语法：
+	select 字段列表 from 表名 into outfile ‘文件名（文件路径）’ 【fields 字段选项 line 行选项】；
+  说明：（最好不使用）
+	fields	用于设置字段的格式
+		terminated by 字符		用于设置字段的分隔符			默认是tab
+		enclosed by字符			用于设置字段的包裹			默认是’’
+		escaped by字符			用于设置null值所代替的字符		默认\N
+	lines	用于设置行的格式
+		starting by 字符		用于设置行的开始	默认是’’
+		terminated by字符		用于设置行的结束	默认是换行\r\n
+   ②、还原
+    语法：
+          load data local infile ‘文件名（文件路径）’ into 表名 【fields 选项 lines 选项】；
+
+11.用户管理
+11.1、查看用户
+      用户信息被保存在mysql数据库，user表中。
+      进入MySQL数据库:use mysql;
+      查看用户信息:select user,host,password from user;
+11.2、创建用户
+  语法：
+	create user '用户名'@'标识' identified by '密码'
+  说明：
+	  用户名就是登陆名
+	“标识”  用于限制当前用户所能登陆的位置
+		localhost		表示本机
+		ip			地址 110.110.110.110
+		%			没限制
+	    密码如果是数字也必须加引号
+11.3、授予权限
+    语法：
+	grant 权限列表(create,insert into,update,drop,select)|all privileges on 数据库【.数据表】 to  '用户名'@'标识'
+11.4、收回权限
+    语法：
+	revoke 权限列表(create,insert into,update,drop,select)|all privileges on 数据库【.数据表】 from  '用户名'@'标识'
+11.5、删除用户
+  语法：
+	drop user  '用户名'@'标识'
+11.6、重置root密码
+   ①、关闭msyql服务
+   ②、启动服务
+    跳过授权表启动Mysql:mysqld --skip-grant-table （窗口处于挂起状态，不可操作）
+   ③、直接登陆，不需要输入用户名与密码(需要另外打开命令窗口操作)
+   ④、修改管理员root密码：update user set password = password('密码') where user ='root';
+   ⑥、关闭第2步中处于挂起的窗口
+   ⑦、关闭mysqld进程
+   ⑧、启动mysql服务器
+      密码登陆
+
+
+mysql_insert_id()或LAST_INSERT_ID()返回这个自增后的id
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
